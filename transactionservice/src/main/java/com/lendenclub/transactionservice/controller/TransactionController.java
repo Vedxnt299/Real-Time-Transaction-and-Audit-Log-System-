@@ -34,18 +34,22 @@ public class TransactionController {
         return ResponseEntity.ok("Transfer successful!");
     }
     @GetMapping("/transactions")
-    public List<TransactionResponse> getAllTransactions() {
-
-        return transactionRepository.findAll()
+    public List<TransactionResponse> getTransactions(
+            @RequestParam Long userId
+    ) {
+        return transactionRepository
+                .findBySender_IdOrReceiver_Id(userId, userId)
                 .stream()
                 .map(tx -> new TransactionResponse(
                         tx.getId(),
                         tx.getSender().getName(),
                         tx.getReceiver().getName(),
                         tx.getAmount(),
+                        tx.getStatus(),
                         tx.getTimestamp()
                 ))
                 .toList();
     }
+
 
 }

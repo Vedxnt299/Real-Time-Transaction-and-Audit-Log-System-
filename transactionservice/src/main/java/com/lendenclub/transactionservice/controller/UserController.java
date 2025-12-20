@@ -1,5 +1,6 @@
 package com.lendenclub.transactionservice.controller;
 
+import com.lendenclub.transactionservice.dto.TransactionResponse;
 import com.lendenclub.transactionservice.entity.Transaction;
 import com.lendenclub.transactionservice.entity.User;
 import com.lendenclub.transactionservice.exception.ResourceNotFoundException;
@@ -47,13 +48,25 @@ public class UserController {
         return userRepository.findAll();
     }
     @GetMapping("/{userId}/transactions")
-    public List<Transaction> getUserTransactions(@PathVariable Long userId) {
+    public List<TransactionResponse> getUserTransactions(@PathVariable Long userId) {
 
         userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        return transactionRepository.findBySenderIdOrReceiverId(userId, userId);
+        return transactionRepository
+                .findBySender_IdOrReceiver_Id(userId, userId)
+                .stream()
+                .map(tx -> new TransactionResponse(
+                        tx.getId(),
+                        tx.getSender().getName(),
+                        tx.getReceiver().getName(),
+                        tx.getAmount(),
+                        tx.getStatus(),
+                        tx.getTimestamp()
+                ))
+                .toList();
     }
+
 
 
 }

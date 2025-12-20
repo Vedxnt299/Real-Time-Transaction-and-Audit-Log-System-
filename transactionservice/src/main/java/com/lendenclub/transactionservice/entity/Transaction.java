@@ -24,6 +24,9 @@ public class Transaction {
 
     private LocalDateTime timestamp;
 
+    @Column(nullable = false)
+    private String status;
+
     public Transaction() {}
 
     public Transaction(User sender, User receiver, BigDecimal amount, LocalDateTime timestamp) {
@@ -52,4 +55,13 @@ public class Transaction {
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
+
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+
 }

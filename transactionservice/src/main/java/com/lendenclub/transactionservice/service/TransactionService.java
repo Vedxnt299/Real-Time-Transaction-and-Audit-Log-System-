@@ -57,6 +57,8 @@ public class TransactionService {
                 LocalDateTime.now()
         );
 
+        tx.setStatus("SUCCESS");
+
         transactionRepository.save(tx);
     }
 }

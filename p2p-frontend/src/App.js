@@ -8,6 +8,7 @@ function App() {
   const [receiverId, setReceiverId] = useState("");
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState("");
 
   const loadUsers = () => {
     fetch("http://localhost:8080/api/users")
@@ -17,11 +18,30 @@ function App() {
   };
 
   const loadTransactions = () => {
-    fetch("http://localhost:8080/api/transactions")
+    fetch("http://localhost:8080/api/transactions", {
+      headers: {
+        "Authorization": "Basic " + btoa("user:password")
+      }
+    })
       .then(res => res.json())
       .then(data => setTransactions(data))
       .catch(err => console.error(err));
   };
+
+
+  const loadUserTransactions = () => {
+    if (!selectedUserId) return;
+
+    fetch(`http://localhost:8080/api/users/${selectedUserId}/transactions`, {
+      headers: {
+        "Authorization": "Basic " + btoa("user:password")
+      }
+    })
+      .then(res => res.json())
+      .then(data => setTransactions(data))
+      .catch(() => setMessage("Failed to load user transactions"));
+  };
+
 
   useEffect(() => {
     loadUsers();
@@ -105,6 +125,27 @@ function App() {
 
       <h2>Audit Logs</h2>
 
+      <h4>Filter by User</h4>
+
+      <select
+        value={selectedUserId}
+        onChange={e => setSelectedUserId(e.target.value)}
+      >
+        <option value="">Select User</option>
+        {users.map(user => (
+          <option key={user.id} value={user.id}>
+            {user.name}
+          </option>
+        ))}
+      </select>
+
+      <button onClick={loadUserTransactions} style={{ marginLeft: "10px" }}>
+        Load User Transactions
+      </button>
+
+      <br /><br />
+
+
       <table border="1" cellPadding="8">
         <thead>
           <tr>
@@ -115,17 +156,18 @@ function App() {
             <th>Time</th>
           </tr>
         </thead>
-        <tbody>
-          {transactions.map(tx => (
-            <tr key={tx.id}>
-              <td>{tx.id}</td>
-              <td>{tx.senderName}</td>
-              <td>{tx.receiverName}</td>
-              <td>{tx.amount}</td>
-              <td>{tx.timestamp}</td>
-            </tr>
-          ))}
-        </tbody>
+       <tbody>
+         {Array.isArray(transactions) && transactions.map(tx => (
+           <tr key={tx.id}>
+             <td>{tx.id}</td>
+             <td>{tx.senderName}</td>
+             <td>{tx.receiverName}</td>
+             <td>{tx.amount}</td>
+             <td>{tx.timestamp}</td>
+           </tr>
+         ))}
+       </tbody>
+
       </table>
 
     </div>
