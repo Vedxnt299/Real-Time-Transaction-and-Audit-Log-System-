@@ -1,5 +1,8 @@
 package com.lendenclub.transactionservice.controller;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import com.lendenclub.transactionservice.dto.TransactionResponse;
 import com.lendenclub.transactionservice.entity.Transaction;
 import com.lendenclub.transactionservice.entity.User;
@@ -28,7 +31,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/create")
+    @PostMapping
     public User createUser(
             @RequestParam String name,
             @RequestParam String email,
@@ -53,8 +56,15 @@ public class UserController {
         userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        Pageable pageable = PageRequest.of(
+                0,
+                10,
+                Sort.by("timestamp").descending()
+        );
+
         return transactionRepository
-                .findBySender_IdOrReceiver_Id(userId, userId)
+                .findBySender_IdOrReceiver_Id(userId, userId, pageable)
+                .getContent()
                 .stream()
                 .map(tx -> new TransactionResponse(
                         tx.getId(),
@@ -65,6 +75,7 @@ public class UserController {
                         tx.getTimestamp()
                 ))
                 .toList();
+
     }
 
 
