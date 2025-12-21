@@ -46,15 +46,22 @@ The above diagram represents the high-level architecture of the Real-Time Transa
 - Transaction creation APIs are secured using Basic Authentication.
 - All transactions are persistently stored in PostgreSQL and act as an immutable audit log.
 
+### NOTE - Screenshots of the application can be found in the [Screenshots](#screenshots) section below.
 
 ## Features Implemented
 
-- User creation and retrieval
+- User creation and retrieval via REST APIs
 - Balance management per user
 - Secure fund transfer between users
-- Transaction persistence with sender, receiver, amount, status, and timestamp
-- Real-time UI refresh after successful transactions
-- Proper error handling for invalid operations (e.g., non-existent users)
+- Atomic transaction handling using @Transactional
+- Persistent audit logging with sender, receiver, amount, status, and timestamp
+- User-specific transaction history (sender or receiver)
+- Global transaction history across all users
+- Pagination support for transaction logs
+- DTO-based response mapping for API safety
+- Real-time UI refresh after successful operations
+- Centralized exception handling and validation
+
 
 ## Security Design
 
@@ -79,8 +86,12 @@ This approach demonstrates secure API access while keeping the setup lightweight
   **Query Params**: senderId, receiverId, amount  
   **Authentication**: Required (Basic Auth)
 
-- `GET /api/transactions`  
-  Retrieves all transactions
+- `GET /api/users/{userId}/transactions`  
+  Retrieves transactions where the user is either sender or receiver
+
+- `GET /api/transactions/all`  
+  Retrieves all transactions across all users (paginated)
+
 
 
 ## Database Schema
@@ -211,6 +222,47 @@ AI tools were used during the development of this project to improve productivit
 
 AI tools significantly accelerated development by reducing setup time and assisting with configuration and documentation. However, core logic, testing, and final integration were performed manually to ensure correctness and reliability.
 
+## Future Improvements
+
+- Role-based access control (Admin vs User)
+- JWT-based authentication instead of Basic Auth
+- Advanced filtering and sorting for audit logs
+- Export audit logs as CSV or PDF
+- Dockerized deployment for production readiness
 
 
+## Screenshots
+
+The following screenshots demonstrate the core functionality and user experience of the Real-Time Transaction and Audit Log System.
+
+### User List and Balances
+Displays all registered users along with their current account balances.
+![Users List](images/users-list.png)
+
+---
+
+### Add New User
+UI form to create a new user with name, email, and initial balance.
+
+![Add User](images/add-user.png)
+
+---
+
+### Fund Transfer
+Secure money transfer between users with real-time balance updates.
+![Transfer Money](images/transfer-success.png)
+
+---
+
+### Audit Logs – All Users
+Complete transaction audit log showing transfers across all users.
+![Audit Logs - All Users](images/audit-all.png)
+
+---
+
+### Audit Logs – User Specific
+Filtered transaction history for a selected user.
+![Audit Logs - User Specific](images/audit-filtered.png)
+
+---
 
