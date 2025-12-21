@@ -237,6 +237,7 @@ The following screenshots demonstrate the core functionality and user experience
 
 ### User List and Balances
 Displays all registered users along with their current account balances.
+
 ![Users List](images/users-list.png)
 
 ---
@@ -250,18 +251,21 @@ UI form to create a new user with name, email, and initial balance.
 
 ### Fund Transfer
 Secure money transfer between users with real-time balance updates.
+
 ![Transfer Money](images/transfer-success.png)
 
 ---
 
 ### Audit Logs – All Users
 Complete transaction audit log showing transfers across all users.
+
 ![Audit Logs - All Users](images/audit-all.png)
 
 ---
 
 ### Audit Logs – User Specific
 Filtered transaction history for a selected user.
+
 ![Audit Logs - User Specific](images/audit-filtered.png)
 
 ---
