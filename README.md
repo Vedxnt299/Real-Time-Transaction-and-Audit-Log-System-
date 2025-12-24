@@ -269,4 +269,9 @@ Filtered transaction history for a selected user.
 ![Audit Logs - User Specific](images/audit-filtered.png)
 
 ---
+### Upcoming Enhancements
+
+- JWT-based authentication (in progress on `jwt-auth-enhancement` branch)
+
+
 
