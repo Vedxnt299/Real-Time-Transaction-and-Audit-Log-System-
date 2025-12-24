@@ -2,6 +2,8 @@ package com.lendenclub.transactionservice.controller;
 
 import com.lendenclub.transactionservice.dto.AuthResponse;
 import com.lendenclub.transactionservice.entity.User;
+import com.lendenclub.transactionservice.exception.BadRequestException;
+import com.lendenclub.transactionservice.exception.ConflictException;
 import com.lendenclub.transactionservice.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +41,8 @@ public class AuthController {
         if (!passwordEncoder.matches(
                 request.getPassword(),
                 user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new BadRequestException("Invalid credentials");
+
         }
 
         String token = jwtUtil.generateToken(user.getEmail());
@@ -48,12 +51,10 @@ public class AuthController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
+    public String signup(@RequestBody SignupRequest request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body("Email already exists");
+            throw new ConflictException("Email already exists");
         }
 
         User user = new User();
@@ -64,7 +65,7 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok("User registered successfully");
+        return "User registered successfully";
     }
 
 

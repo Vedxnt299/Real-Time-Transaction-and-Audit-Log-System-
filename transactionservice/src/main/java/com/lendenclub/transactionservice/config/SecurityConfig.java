@@ -14,11 +14,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil) {
-        return new JwtAuthenticationFilter(jwtUtil);
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             JwtAuthenticationFilter jwtFilter
@@ -30,7 +25,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/login").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
