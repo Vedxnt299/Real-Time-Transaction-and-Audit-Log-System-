@@ -269,9 +269,32 @@ Filtered transaction history for a selected user.
 ![Audit Logs - User Specific](images/audit-filtered.png)
 
 ---
-### Upcoming Enhancements
+## Upcoming Enhancements
 
-- JWT-based authentication (in progress on `jwt-auth-enhancement` branch)
+###  JWT Authentication Enhancement 
+
+A new feature branch **`jwt-auth-enhancement`** has been created to enhance the security of the application without affecting the stable release.
+
+### What’s added in this branch:
+- JWT-based authentication using Spring Security
+- User **Signup** and **Login** APIs
+- Secure token-based access to protected endpoints
+- Stateless authentication (no sessions)
+- React frontend updated to:
+  - Handle login & signup
+  - Store JWT securely
+  - Attach token to API requests
+  - Restrict access to authenticated users only
+
+### Why this approach?
+- Keeps `main` branch stable (v1.0.0)
+- Demonstrates real-world feature development using Git branches
+- Allows incremental enhancements without breaking production code
+
+>  This enhancement is currently available on the `jwt-auth-enhancement` branch and is not yet merged into `main`.
+
+---
+
 
 
 
