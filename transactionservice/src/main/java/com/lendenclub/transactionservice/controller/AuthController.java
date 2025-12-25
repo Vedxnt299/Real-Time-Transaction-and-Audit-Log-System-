@@ -61,7 +61,12 @@ public class AuthController {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setBalance(BigDecimal.ZERO);
+        user.setBalance(
+                request.getBalance() != null
+                        ? request.getBalance()
+                        : BigDecimal.ZERO
+        );
+
 
         userRepository.save(user);
 

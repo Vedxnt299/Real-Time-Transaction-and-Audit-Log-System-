@@ -1,6 +1,7 @@
 package com.lendenclub.transactionservice.controller;
 import com.lendenclub.transactionservice.dto.TransactionResponse;
 import com.lendenclub.transactionservice.entity.Transaction;
+import org.springframework.security.core.Authentication;
 import com.lendenclub.transactionservice.repository.TransactionRepository;
 import java.util.List;
 import com.lendenclub.transactionservice.service.TransactionService;
@@ -29,13 +30,22 @@ public class TransactionController {
 
     @PostMapping("/transfer")
     public ResponseEntity<String> transfer(
-            @RequestParam Long senderId,
             @RequestParam Long receiverId,
-            @RequestParam BigDecimal amount) {
+            @RequestParam BigDecimal amount,
+            Authentication authentication
+    ) {
+        // email/username extracted from JWT
+        String email = authentication.getName();
 
-        transactionService.transferMoney(senderId, receiverId, amount);
+        transactionService.transferMoneyByEmail(
+                email,
+                receiverId,
+                amount
+        );
+
         return ResponseEntity.ok("Transfer successful!");
     }
+
     @GetMapping("/transactions")
     public List<TransactionResponse> getTransactions(
             @RequestParam Long userId,

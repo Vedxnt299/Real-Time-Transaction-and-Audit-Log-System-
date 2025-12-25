@@ -6,6 +6,7 @@ import com.lendenclub.transactionservice.exception.ResourceNotFoundException;
 import com.lendenclub.transactionservice.repository.TransactionRepository;
 import com.lendenclub.transactionservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -61,4 +62,21 @@ public class TransactionService {
 
         transactionRepository.save(tx);
     }
+
+    @Transactional
+    public void transferMoneyByEmail(
+            String senderEmail,
+            Long receiverId,
+            BigDecimal amount
+    ) {
+        // 1. Find sender using email from JWT
+        User sender = userRepository.findByEmail(senderEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Sender not found with email: " + senderEmail)
+                );
+
+        // 2. Reuse existing logic
+        transferMoney(sender.getId(), receiverId, amount);
+    }
+
 }
