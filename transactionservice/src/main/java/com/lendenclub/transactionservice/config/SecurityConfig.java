@@ -1,5 +1,6 @@
 package com.lendenclub.transactionservice.config;
 
+import com.lendenclub.transactionservice.security.RateLimitFilter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +18,11 @@ import java.util.List;
 
 @Configuration
 public class SecurityConfig {
+    private final RateLimitFilter rateLimitFilter;
+
+    public SecurityConfig(RateLimitFilter rateLimitFilter) {
+        this.rateLimitFilter = rateLimitFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -28,6 +34,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/transfer").authenticated()
                         .anyRequest().permitAll()
                 )
+                .addFilterBefore(rateLimitFilter,
+                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
