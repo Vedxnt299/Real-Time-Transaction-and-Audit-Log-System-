@@ -12,6 +12,7 @@ function App() {
   const [newUserName, setNewUserName] = useState("");
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserBalance, setNewUserBalance] = useState("");
+  const [isLastPage, setIsLastPage] = useState(false);
   const [page, setPage] = useState(0);
   const pageSize = 5;
 
@@ -26,22 +27,9 @@ function App() {
       .catch(err => console.error("Failed to load users", err));
   };
 
-
-  const loadTransactions = () => {
-    fetch("http://localhost:8080/api/transactions", {
-      headers: {
-        "Authorization": "Basic " + btoa("user:password")
-      }
-    })
-      .then(res => res.json())
-      .then(data => setTransactions(data))
-      .catch(err => console.error(err));
-  };
-
-
   const loadFilteredTransactions = () => {
     const url = selectedUserId
-      ? `http://localhost:8080/api/users/${selectedUserId}/transactions?page=${page}&size=${pageSize}`
+      ? `http://localhost:8080/api/transactions?userId=${selectedUserId}&page=${page}&size=${pageSize}`
       : `http://localhost:8080/api/transactions/all?page=${page}&size=${pageSize}`;
 
     fetch(url, {
@@ -50,7 +38,10 @@ function App() {
       }
     })
       .then(res => res.json())
-      .then(data => setTransactions(data))
+      .then(data => {
+        setTransactions(data.content);
+        setIsLastPage(data.last);
+      })
       .catch(() => setMessage("Failed to load transactions"));
   };
 
@@ -88,7 +79,7 @@ function App() {
 
   useEffect(() => {
     loadUsers();
-    loadTransactions();
+    loadFilteredTransactions();
   }, []);
 
   useEffect(() => {
@@ -110,7 +101,7 @@ function App() {
       .then(data => {
         setMessage(data);
         loadUsers();
-        loadTransactions();
+        loadFilteredTransactions();
       })
 
 
@@ -212,6 +203,8 @@ function App() {
         onChange={e => {
           setSelectedUserId(e.target.value);
           setPage(0); // reset pagination
+          setIsLastPage(false);
+          setTransactions([]);
         }}
       >
 
@@ -249,21 +242,28 @@ function App() {
           </tr>
         </thead>
        <tbody>
-         {Array.isArray(transactions) && transactions.map(tx => (
-           <tr key={tx.id}>
-             <td>{tx.id}</td>
-             <td>{tx.senderName}</td>
-             <td>{tx.receiverName}</td>
-             <td>{tx.amount}</td>
-             <td>
-               {tx.timestamp
-                 ? tx.timestamp.replace("T", " ").split(".")[0]
-                 : ""}
+         {Array.isArray(transactions) && transactions.length > 0 ? (
+           transactions.map(tx => (
+             <tr key={tx.id}>
+               <td>{tx.id}</td>
+               <td>{tx.senderName}</td>
+               <td>{tx.receiverName}</td>
+               <td>{tx.amount}</td>
+               <td>
+                 {tx.timestamp
+                   ? tx.timestamp.replace("T", " ").split(".")[0]
+                   : ""}
+               </td>
+             </tr>
+           ))
+         ) : (
+           <tr>
+             <td colSpan="5" style={{ textAlign: "center" }}>
+               No transactions found
              </td>
            </tr>
-         ))}
+         )}
        </tbody>
-
       </table>
 
       <div style={{ marginTop: "10px" }}>
@@ -280,7 +280,7 @@ function App() {
 
         <button
           onClick={() => setPage(prev => prev + 1)}
-          disabled={transactions.length < pageSize}
+          disabled={isLastPage}
         >
           Next
         </button>
