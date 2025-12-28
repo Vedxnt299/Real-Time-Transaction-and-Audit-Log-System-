@@ -19,13 +19,13 @@ function App() {
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserBalance, setNewUserBalance] = useState("");
 
-
   const [signupName, setSignupName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupMessage, setSignupMessage] = useState("");
   const [signupBalance, setSignupBalance] = useState("");
 
+  const [isLastPage, setIsLastPage] = useState(false);
   const [page, setPage] = useState(0);
   const pageSize = 5;
 
@@ -95,27 +95,26 @@ function App() {
     }
   };
 
-  const loadTransactions = async () => {
-    try {
-      const res = await authFetch("http://localhost:8080/api/transactions");
-      const data = await res.json();
-      setTransactions(data);
-    } catch (e) {
-      console.error(e.message);
-    }
-  };
 
   const loadFilteredTransactions = async () => {
     const url = selectedUserId
-      ? `http://localhost:8080/api/users/${selectedUserId}/transactions?page=${page}&size=${pageSize}`
+      ? `http://localhost:8080/api/transactions?userId=${selectedUserId}&page=${page}&size=${pageSize}`
       : `http://localhost:8080/api/transactions/all?page=${page}&size=${pageSize}`;
 
     try {
       const res = await authFetch(url);
       const data = await res.json();
-      setTransactions(data);
+      setTransactions(data.content);
+      setIsLastPage(data.last);
     } catch {
       setMessage("Failed to load transactions");
+    }
+  };
+
+  const handleAddUser = () => {
+    if (!newUserName || !newUserEmail || !newUserBalance) {
+      setMessage("Please enter name and balance");
+      return;
     }
   };
 
@@ -136,9 +135,19 @@ function App() {
         localStorage.setItem("token", data.token);
         setToken(data.token);
         setAuthMessage("Login successful");
-      })
-      .catch(err => setAuthMessage(err.message));
-  };
+              })
+              .catch(err => setAuthMessage(err.message));
+          };
+
+  useEffect(() => {
+    loadUsers();
+    loadFilteredTransactions();
+  }, []);
+
+  useEffect(() => {
+    loadFilteredTransactions();
+  }, [page]);
+
 
   /* ---------------- ACTIONS ---------------- */
 
@@ -163,7 +172,7 @@ function App() {
   useEffect(() => {
     if (token) {
       loadUsers();
-      loadTransactions();
+      loadFilteredTransactions();
     }
   }, [token]);
 
@@ -303,7 +312,7 @@ function App() {
                         </tr>
                       </thead>
                       <tbody>
-                        {Array.isArray(transactions) &&
+                        {Array.isArray(transactions) && transactions.length > 0 ? (
                           transactions.map(tx => (
                             <tr key={tx.id}>
                               <td>{tx.id}</td>
@@ -316,7 +325,14 @@ function App() {
                                   : ""}
                               </td>
                             </tr>
-                          ))}
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="5" style={{ textAlign: "center" }}>
+                              No transactions found
+                            </td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
 
@@ -334,7 +350,7 @@ function App() {
 
                       <button
                         onClick={() => setPage(prev => prev + 1)}
-                        disabled={transactions.length < pageSize}
+                        disabled={isLastPage}
                       >
                         Next
                       </button>
@@ -344,5 +360,4 @@ function App() {
               </div>
             );
           }
-
 export default App;
