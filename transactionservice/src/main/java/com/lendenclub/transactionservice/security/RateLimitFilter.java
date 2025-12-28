@@ -31,7 +31,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // 1️⃣ Rate limit login endpoint (by IP)
+        // Rate limit login endpoint (by IP)
         if (path.contains("/auth/login")) {
             String ip = request.getRemoteAddr();
             Bucket bucket = loginBuckets.computeIfAbsent(ip, k -> createLoginBucket());
@@ -42,7 +42,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             }
         }
 
-        // 2️⃣ Rate limit transfer endpoint (by user)
+        // Rate limit transfer endpoint (by user)
         if (path.contains("/api/transfer")) {
             String user = request.getUserPrincipal() != null
                     ? request.getUserPrincipal().getName()
