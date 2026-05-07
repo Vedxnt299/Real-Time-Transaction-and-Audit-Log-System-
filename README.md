@@ -1,4 +1,4 @@
-# Assignment 2 - Real Time Transaction and Audit Log System
+# Real Time Transaction and Audit Log System
 
 ## Project Overview
 
@@ -22,7 +22,7 @@ The system allows users to:
 - Java 17
 - Spring Boot
 - Spring Data JPA (Hibernate)
-- Spring Security (Basic Authentication)
+- Spring Security with JWT Authentication
 - PostgreSQL
 
 ### Frontend
@@ -43,7 +43,7 @@ The above diagram represents the high-level architecture of the Real-Time Transa
 
 - The React frontend communicates with the Spring Boot backend via REST APIs.
 - The backend follows a layered architecture (Controller, Service, Repository).
-- Transaction creation APIs are secured using Basic Authentication.
+- Transaction creation APIs are secured using JWT Authentication.
 - All transactions are persistently stored in PostgreSQL and act as an immutable audit log.
 
 ### NOTE - Screenshots of the application can be found in the [Screenshots](#screenshots) section below.
@@ -65,13 +65,29 @@ The above diagram represents the high-level architecture of the Real-Time Transa
 
 ## Security Design
 
-Basic authentication has been implemented using Spring Security.
+JWT-based authentication has been implemented using Spring Security.
 
-- The fund transfer endpoint (`POST /api/transfer`) is protected and requires authentication
-- Read-only endpoints (user listing and transaction history) are publicly accessible for demo purposes
-- In-memory users are configured for simplicity in this assignment
+### Authentication Flow
+- Users can register using the Signup API
+- Registered users can log in using email and password
+- On successful login, the backend generates a JWT token
+- The frontend stores the token in localStorage
+- All protected API requests include the token using the Authorization header
 
-This approach demonstrates secure API access while keeping the setup lightweight and easy to test.
+### Protected Endpoints
+The following endpoints require JWT authentication:
+- `POST /api/transfer`
+- `GET /api/transactions`
+- `GET /api/transactions/all`
+
+### Security Features
+- Stateless authentication using JWT
+- Password-protected user accounts
+- Token-based authorization for protected operations
+- Session-independent API access
+- Unauthorized requests return appropriate HTTP status codes
+
+This approach closely resembles modern fintech and banking backend authentication flows.
 
 
 ## API Documentation
@@ -92,7 +108,13 @@ This approach demonstrates secure API access while keeping the setup lightweight
 - `GET /api/transactions/all`  
   Retrieves all transactions across all users (paginated)
 
+### Authentication APIs
 
+- `POST /auth/signup`
+  Registers a new user account
+
+- `POST /auth/login`
+  Authenticates a user and returns a JWT token
 
 ## Database Schema
 
@@ -161,7 +183,7 @@ Run the Spring Boot application using:
 
 ---
 
-## **Backend Security (Basic Authentication)**
+## **Backend Security (JWT Authentication)**
 
 ```
 The money transfer API is secured using HTTP Basic Authentication.
@@ -222,13 +244,27 @@ AI tools were used during the development of this project to improve productivit
 
 AI tools significantly accelerated development by reducing setup time and assisting with configuration and documentation. However, core logic, testing, and final integration were performed manually to ensure correctness and reliability.
 
-## Future Improvements
+## Major Enhancements Added
 
-- Role-based access control (Admin vs User)
-- JWT-based authentication instead of Basic Auth
-- Advanced filtering and sorting for audit logs
-- Export audit logs as CSV or PDF
-- Dockerized deployment for production readiness
+### JWT Authentication System
+
+A dedicated feature branch `jwt-auth-enhancement` was created to implement production-style authentication without affecting the stable release branch.
+
+### Features Added
+- JWT-based authentication using Spring Security
+- User Signup and Login APIs
+- Stateless authentication architecture
+- Token validation using custom JWT filters
+- Secure access to protected APIs using Bearer tokens
+- React frontend integration with login and signup UI
+- Token persistence using localStorage
+- Automatic authorization header attachment for API requests
+- Logout functionality with token cleanup
+
+### Engineering Practices Followed
+- Feature implemented in an isolated Git branch
+- Stable `main` branch preserved during development
+- Incremental enhancement workflow similar to real-world software teams
 
 
 ## Screenshots
@@ -267,34 +303,4 @@ Complete transaction audit log showing transfers across all users.
 Filtered transaction history for a selected user.
 
 ![Audit Logs - User Specific](images/audit-filtered.png)
-
----
-## Upcoming Enhancements
-
-###  JWT Authentication Enhancement 
-
-A new feature branch **`jwt-auth-enhancement`** has been created to enhance the security of the application without affecting the stable release.
-
-### What’s added in this branch:
-- JWT-based authentication using Spring Security
-- User **Signup** and **Login** APIs
-- Secure token-based access to protected endpoints
-- Stateless authentication (no sessions)
-- React frontend updated to:
-  - Handle login & signup
-  - Store JWT securely
-  - Attach token to API requests
-  - Restrict access to authenticated users only
-
-### Why this approach?
-- Keeps `main` branch stable (v1.0.0)
-- Demonstrates real-world feature development using Git branches
-- Allows incremental enhancements without breaking production code
-
->  This enhancement is currently available on the `jwt-auth-enhancement` branch and is not yet merged into `main`.
-
----
-
-
-
 
